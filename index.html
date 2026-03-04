@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramadan Calendar 1938–2038</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #7a6230;
+    --deep: #0A0D14;
+    --surface: #111520;
+    --card: #161C2E;
+    --card-hover: #1E2640;
+    --border: rgba(201,168,76,0.18);
+    --border-bright: rgba(201,168,76,0.5);
+    --text: #E8E4D8;
+    --text-muted: #8A8470;
+    --green: #3DAA72;
+    --green-dim: #1e4d35;
+    --moon: #F5D78A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── star background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 20%, rgba(61,170,114,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* stars */
+  .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .star {
+    position: absolute; border-radius: 50%;
+    background: white; opacity: 0;
+    animation: twinkle var(--d,3s) var(--delay,0s) infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: var(--op, 0.6); transform: scale(1.2); }
+  }
+
+  /* ── header ── */
+  header {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  .moon-icon {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 20px rgba(245,215,138,0.6));
+    animation: floatMoon 4s ease-in-out infinite;
+  }
+  @keyframes floatMoon {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .arabic-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--gold);
+    letter-spacing: 2px;
+    line-height: 1.1;
+    text-shadow: 0 0 40px rgba(201,168,76,0.4);
+  }
+  .sub-title {
+    font-size: clamp(13px, 2vw, 16px);
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .divider {
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto;
+  }
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── stats bar ── */
+  .stats-bar {
+    position: relative; z-index: 2;
+    display: flex; flex-wrap: wrap; gap: 12px;
+    justify-content: center;
+    padding: 0 20px 30px;
+  }
+  .stat-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--gold-light);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stat-pill span { color: var(--text-muted); font-weight: 300; }
+
+  /* ── filter bar ── */
+  .filter-bar {
+    position: relative; z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    padding: 0 20px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px; }
+  .filter-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+  select, input[type="text"], input[type="number"] {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select:focus, input:focus { border-color: var(--gold); }
+  select option { background: var(--surface); }
+
+  .search-wrap { position: relative; flex: 2; min-width: 200px; }
+  .search-wrap input { padding-left: 38px; }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); font-size: 15px; pointer-events: none;
+  }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    color: var(--gold);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+  .btn-reset:hover { background: var(--gold); color: var(--deep); }
+
+  /* view toggle */
+  .view-toggle {
+    display: flex; gap: 4px; align-self: flex-end;
+    background: var(--card); border-radius: 8px;
+    padding: 4px; border: 1px solid var(--border);
+  }
+  .vtbtn {
+    background: transparent; border: none; color: var(--text-muted);
+    border-radius: 6px; padding: 6px 12px; cursor: pointer;
+    font-size: 16px; transition: all 0.2s;
+  }
+  .vtbtn.active { background: var(--gold); color: var(--deep); }
+
+  /* ── results info ── */
+  .results-info {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto 12px;
+    padding: 0 20px;
+    font-size: 13px; color: var(--text-muted);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .results-count strong { color: var(--gold); }
+
+
+  /* ── GRID VIEW ── */
+  #grid-container {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Decade banner */
+  .decade-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04));
+    border: 1px solid var(--border-bright);
+    border-radius: 14px;
+    padding: 16px 22px;
+    margin: 28px 0 0;
+    position: relative; overflow: hidden;
+  }
+  .decade-banner::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+    border-radius: 14px 0 0 14px;
+  }
+  .decade-banner-title { display: flex; align-items: baseline; gap: 12px; }
+  .decade-label {
+    font-size: 26px; font-weight: 700; color: var(--gold);
+    font-family: 'Amiri', serif; letter-spacing: 1px;
+  }
+  .decade-range { font-size: 13px; color: var(--text-muted); letter-spacing: 1px; }
+  .decade-meta { font-size: 12px; color: var(--text-muted); background: rgba(201,168,76,0.1); border-radius: 20px; padding: 3px 12px; }
+
+  /* Month section */
+  .month-section-wrap {
+    padding: 4px 0 8px 0;
+    border-left: 1px solid rgba(201,168,76,0.1);
+    margin-left: 12px;
+    padding-left: 16px;
+  }
+  .month-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold-dim); font-weight: 600;
+    margin: 18px 0 8px;
+  }
+  .month-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(201,168,76,0.5);
+  }
+  .month-count {
+    background: rgba(201,168,76,0.12); color: var(--gold);
+    border-radius: 10px; padding: 1px 7px;
+    font-size: 10px; letter-spacing: 0;
+  }
+  .cards-row {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    cursor: default;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease both;
+    width: 190px;
+    flex-shrink: 0;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .card:hover { background: var(--card-hover); border-color: var(--border-bright); transform: translateY(-2px); }
+  .card:hover::before { opacity: 1; }
+
+  .card-year {
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--text-muted); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .card-date {
+    font-size: 20px; font-weight: 600;
+    color: var(--gold-light);
+    line-height: 1.1;
+  }
+  .card-day {
+    font-size: 12px; color: var(--green); font-weight: 500;
+    margin-top: 4px;
+  }
+  .card-hijri {
+    position: absolute; top: 16px; right: 14px;
+    font-family: 'Amiri', serif;
+    font-size: 13px; color: var(--text-muted);
+    background: rgba(201,168,76,0.08);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 8px;
+  }
+  .card-season {
+    margin-top: 10px;
+    font-size: 11px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .season-winter { background: rgba(100,149,237,0.12); color: #8EB4F8; }
+  .season-spring { background: rgba(61,170,114,0.12); color: #6DD9A2; }
+  .season-summer { background: rgba(255,160,50,0.12); color: #FFB84D; }
+  .season-autumn { background: rgba(210,105,30,0.12); color: #E09060; }
+
+  /* TODAY highlight */
+  .card.today {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.07);
+  }
+  .today-badge {
+    position: absolute; bottom: 10px; right: 10px;
+    font-size: 10px; letter-spacing: 1px;
+    color: var(--gold); background: rgba(201,168,76,0.15);
+    border-radius: 10px; padding: 2px 8px;
+    text-transform: uppercase;
+  }
+
+  /* ── TABLE VIEW ── */
+  #table-container {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 20px 60px;
+    display: none;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--card);
+    color: var(--gold);
+    padding: 14px 18px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: uppercase;
+    position: sticky; top: 0; z-index: 1;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 14px 0 0 0; }
+  thead th:last-child { border-radius: 0 14px 0 0; }
+  tbody tr {
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: var(--card-hover); }
+  tbody tr.today-row { background: rgba(201,168,76,0.06); }
+  tbody tr.today-row td:first-child { border-left: 3px solid var(--gold); }
+  td { padding: 12px 18px; color: var(--text); }
+  td.greg { font-weight: 500; color: var(--gold-light); }
+  td.hijri-td { font-family: 'Amiri', serif; color: var(--text-muted); }
+  td.day-td { color: var(--green); font-size: 13px; }
+  td.season-td { font-size: 12px; }
+
+  /* ── no results ── */
+  .no-results {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted); display: none;
+    position: relative; z-index: 2;
+  }
+  .no-results .icon { font-size: 48px; margin-bottom: 16px; }
+  .no-results p { font-size: 15px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+
+  /* Tablet (≤ 768px) */
+  @media (max-width: 768px) {
+    header { padding: 40px 16px 28px; }
+    .moon-icon { font-size: 44px; }
+
+    .stats-bar { gap: 8px; padding: 0 16px 20px; }
+    .stat-pill { font-size: 12px; padding: 6px 14px; }
+
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      padding: 0 16px;
+      margin-bottom: 20px;
+    }
+    .filter-group { flex: unset; min-width: unset; width: 100%; }
+    .search-wrap { flex: unset; min-width: unset; width: 100%; }
+
+    /* Put view toggle + reset on one row */
+    .filter-bottom-row {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .view-toggle { align-self: unset; flex-shrink: 0; }
+    .btn-reset { flex: 1; text-align: center; align-self: unset; }
+
+    .results-info { padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 4px; }
+
+    #grid-container { padding: 0 16px 40px; }
+    #table-container { padding: 0 16px 40px; }
+
+    .decade-banner { padding: 12px 16px; }
+    .decade-label { font-size: 22px; }
+    .decade-range { font-size: 12px; }
+    .decade-meta { font-size: 11px; padding: 2px 10px; }
+
+    .month-section-wrap { margin-left: 8px; padding-left: 12px; }
+
+    /* Cards scroll horizontally on tablet */
+    .cards-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; gap: 8px; }
+    .cards-row::-webkit-scrollbar { height: 3px; }
+    .cards-row::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+    .card { width: 160px; min-width: 160px; padding: 14px 12px; }
+    .card-date { font-size: 17px; }
+    .card-hijri { font-size: 11px; padding: 2px 6px; }
+
+    table { font-size: 13px; }
+    thead th { padding: 11px 12px; font-size: 11px; }
+    td { padding: 10px 12px; }
+  }
+
+  /* Mobile (≤ 480px) */
+  @media (max-width: 480px) {
+    header { padding: 32px 14px 22px; }
+    .moon-icon { font-size: 38px; margin-bottom: 8px; }
+
+    .stats-bar { padding: 0 14px 16px; }
+    .stat-pill { font-size: 11px; padding: 5px 11px; gap: 5px; }
+    /* Hide less important pills on small screens */
+    .stat-pill:nth-child(n+4) { display: none; }
+
+    .filter-bar { padding: 0 14px; gap: 8px; margin-bottom: 16px; }
+
+    select, input[type="text"] {
+      font-size: 15px; /* prevent iOS zoom */
+      padding: 11px 14px;
+    }
+
+    #grid-container { padding: 0 14px 40px; }
+    #table-container { padding: 0 14px 40px; }
+
+    .decade-banner { padding: 10px 14px; margin-top: 20px; border-radius: 10px; }
+    .decade-label { font-size: 20px; }
+    .decade-range { display: none; }
+    .decade-meta { font-size: 11px; }
+
+    .month-section-wrap { margin-left: 6px; padding-left: 10px; }
+    .month-header { font-size: 11px; letter-spacing: 1.5px; margin: 14px 0 6px; }
+
+    .cards-row { gap: 7px; }
+    .card {
+      width: 145px; min-width: 145px;
+      padding: 12px 10px;
+      border-radius: 10px;
+    }
+    .card-year { font-size: 10px; }
+    .card-date { font-size: 15px; }
+    .card-day { font-size: 11px; }
+    .card-hijri { font-size: 10px; padding: 1px 5px; top: 10px; right: 8px; }
+    .card-season { font-size: 10px; padding: 2px 6px; margin-top: 8px; }
+    .today-badge { font-size: 9px; padding: 2px 6px; }
+
+    /* Table: hide less important columns */
+    table { font-size: 12px; }
+    thead th { padding: 10px 10px; }
+    td { padding: 9px 10px; }
+    th:nth-child(5), td:nth-child(5) { display: none; } /* hide Season col */
+  }
+
+  /* Very small (≤ 360px) */
+  @media (max-width: 360px) {
+    .card { width: 130px; min-width: 130px; }
+    .card-date { font-size: 14px; }
+    th:nth-child(1), td:nth-child(1) { display: none; } /* hide # col */
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<header>
+  <span class="moon-icon">🌙</span>
+  <div class="arabic-title">رمضان المبارك</div>
+  <h1 style="font-size:clamp(18px,3vw,28px); font-weight:600; color:var(--text); margin-top:6px;">Ramadan Calendar</h1>
+  <div class="sub-title">1357 – 1460 Hijri &nbsp;·&nbsp; 1938 – 2038 Gregorian</div>
+  <div class="divider"></div>
+  <p class="note">± One day difference possible based on moon sighting</p>
+</header>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search year, month, or date…">
+  </div>
+  <div class="filter-group">
+    <div class="filter-label">Decade</div>
+    <select id="decadeFilter">
+      <option value="">All Decades</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label">Season</div>
+    <select id="seasonFilter">
+      <option value="">All Seasons</option>
+      <option value="Winter">❄️ Winter</option>
+      <option value="Spring">🌸 Spring</option>
+      <option value="Summer">☀️ Summer</option>
+      <option value="Autumn">🍂 Autumn</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label">Month</div>
+    <select id="monthFilter">
+      <option value="">All Months</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <div class="filter-label">Day of Week</div>
+    <select id="dayFilter">
+      <option value="">Any Day</option>
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday ⭐</option>
+      <option value="Saturday">Saturday</option>
+      <option value="Sunday">Sunday</option>
+    </select>
+  </div>
+  <div class="filter-bottom-row" style="display:flex;gap:10px;align-items:center;width:100%;">
+    <div class="view-toggle">
+      <button class="vtbtn active" id="btnGrid" title="Grid view">⊞</button>
+      <button class="vtbtn" id="btnTable" title="Table view">☰</button>
+    </div>
+    <button class="btn-reset" id="resetBtn">✕ Reset</button>
+  </div>
+</div>
+
+<div class="results-info">
+  <div class="results-count" id="resultsCount"></div>
+  <div id="nearestInfo" style="font-size:13px; color:var(--text-muted);"></div>
+</div>
+
+<div id="grid-container"></div>
+<div id="table-container">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Gregorian Date</th>
+          <th>Day</th>
+          <th>Hijri Year</th>
+          <th>Season</th>
+          <th>Days Until / Ago</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="no-results" id="noResults">
+  <div class="icon">🌙</div>
+  <p>No Ramadan dates match your filters.</p>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const RAW = [
+  ["25 October 1938",1357],["15 October 1939",1358],["4 October 1940",1359],
+  ["24 September 1941",1360],["13 September 1942",1361],["2 September 1943",1362],
+  ["21 August 1944",1363],["11 August 1945",1364],["31 July 1946",1365],
+  ["20 July 1947",1366],["9 July 1948",1367],["29 June 1949",1368],
+  ["18 June 1950",1369],["7 June 1951",1370],["27 May 1952",1371],
+  ["16 May 1953",1372],["6 May 1954",1373],["25 April 1955",1374],
+  ["14 April 1956",1375],["3 April 1957",1376],["24 March 1958",1377],
+  ["13 March 1959",1378],["2 March 1960",1379],["19 February 1961",1380],
+  ["9 February 1962",1381],["29 January 1963",1382],["17 January 1964",1383],
+  ["6 January 1965",1384],["27 December 1965",1385],["16 December 1966",1386],
+  ["5 December 1967",1387],["24 November 1968",1388],["13 November 1969",1389],
+  ["2 November 1970",1390],["22 October 1971",1391],["10 October 1972",1392],
+  ["29 September 1973",1393],["18 September 1974",1394],["7 September 1975",1395],
+  ["27 August 1976",1396],["16 August 1977",1397],["5 August 1978",1398],
+  ["25 July 1979",1399],["14 July 1980",1400],["3 July 1981",1401],
+  ["23 June 1982",1402],["12 June 1983",1403],["1 June 1984",1404],
+  ["21 May 1985",1405],["10 May 1986",1406],["30 April 1987",1407],
+  ["18 April 1988",1408],["8 April 1989",1409],["28 March 1990",1410],
+  ["17 March 1991",1411],["6 March 1992",1412],["24 February 1993",1413],
+  ["13 February 1994",1414],["2 February 1995",1415],["22 January 1996",1416],
+  ["10 January 1997",1417],["31 December 1997",1418],["20 December 1998",1419],
+  ["9 December 1999",1420],["27 November 2000",1421],["16 November 2001",1422],
+  ["5 November 2002",1423],["26 October 2003",1424],["15 October 2004",1425],
+  ["4 October 2005",1426],["24 September 2006",1427],["13 September 2007",1428],
+  ["2 September 2008",1429],["22 August 2009",1430],["11 August 2010",1431],
+  ["1 August 2011",1432],["20 July 2012",1433],["9 July 2013",1434],
+  ["28 June 2014",1435],["18 June 2015",1436],["6 June 2016",1437],
+  ["27 May 2017",1438],["16 May 2018",1439],["6 May 2019",1440],
+  ["24 April 2020",1441],["13 April 2021",1442],["2 April 2022",1443],
+  ["23 March 2023",1444],["11 March 2024",1445],["1 March 2025",1446],
+  ["19 February 2026",1447],["8 February 2027",1448],["28 January 2028",1449],
+  ["17 January 2029",1450],["6 January 2030",1451],["27 December 2030",1452],
+  ["16 December 2031",1453],["5 December 2032",1454],["23 November 2033",1455],
+  ["12 November 2034",1456],["1 November 2035",1457],["20 October 2036",1458],
+  ["10 October 2037",1459],["30 September 2038",1460]
+];
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SEASON_EMOJI = { Winter:'❄️', Spring:'🌸', Summer:'☀️', Autumn:'🍂' };
+
+function parseDateStr(s) {
+  const parts = s.split(' ');
+  const day = parseInt(parts[0]);
+  const month = MONTHS.indexOf(parts[1]);
+  const year = parseInt(parts[2]);
+  return new Date(year, month, day);
+}
+
+function getSeason(date) {
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  if ((m === 12 && d >= 21) || m <= 2 || (m === 3 && d < 20)) return 'Winter';
+  if ((m === 3 && d >= 20) || m <= 5 || (m === 6 && d < 21)) return 'Spring';
+  if ((m === 6 && d >= 21) || m <= 8 || (m === 9 && d < 23)) return 'Summer';
+  return 'Autumn';
+}
+
+function daysFromToday(date) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((date - today) / 86400000);
+  return diff;
+}
+
+function formatDiff(d) {
+  if (d === 0) return '🌙 Today!';
+  if (d > 0) return `in ${d} days`;
+  return `${Math.abs(d)} days ago`;
+}
+
+// build data
+const today = new Date(); today.setHours(0,0,0,0);
+const DATA = RAW.map(([str, hijri]) => {
+  const date = parseDateStr(str);
+  const season = getSeason(date);
+  const dayName = DAYS[date.getDay()];
+  const monthName = MONTHS[date.getMonth()];
+  const year = date.getFullYear();
+  const decade = Math.floor(year / 10) * 10;
+  const diff = daysFromToday(date);
+  const isToday = diff === 0;
+  // find nearest future
+  return { str, hijri, date, season, dayName, monthName, year, decade, diff, isToday };
+});
+
+// ── STARS ────────────────────────────────────────────────────────────────────
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2 + 1;
+  s.style.cssText = `
+    width:${size}px; height:${size}px;
+    top:${Math.random()*100}%; left:${Math.random()*100}%;
+    --d:${2+Math.random()*4}s; --delay:${Math.random()*5}s;
+    --op:${0.3+Math.random()*0.5};
+  `;
+  starsEl.appendChild(s);
+}
+
+// ── STATS BAR ────────────────────────────────────────────────────────────────
+function buildStats() {
+  const next = DATA.find(d => d.diff >= 0);
+  const seasonCounts = {};
+  DATA.forEach(d => seasonCounts[d.season] = (seasonCounts[d.season]||0)+1);
+  const fridayCount = DATA.filter(d => d.dayName === 'Friday').length;
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = `
+    <div class="stat-pill">🌙 <span>100 years of Ramadan</span></div>
+    ${next ? `<div class="stat-pill">⏳ Next: <strong style="color:var(--gold);margin-left:4px">${next.str}</strong><span style="margin-left:6px">(${formatDiff(next.diff)})</span></div>` : ''}
+    <div class="stat-pill">❄️ Winter <span>${seasonCounts.Winter||0}x</span></div>
+    <div class="stat-pill">🌸 Spring <span>${seasonCounts.Spring||0}x</span></div>
+    <div class="stat-pill">☀️ Summer <span>${seasonCounts.Summer||0}x</span></div>
+    <div class="stat-pill">🍂 Autumn <span>${seasonCounts.Autumn||0}x</span></div>
+    <div class="stat-pill">⭐ Started Friday <span>${fridayCount}x</span></div>
+  `;
+}
+buildStats();
+
+// ── POPULATE FILTERS ─────────────────────────────────────────────────────────
+const decadeSet = [...new Set(DATA.map(d => d.decade))].sort();
+const decSel = document.getElementById('decadeFilter');
+decadeSet.forEach(dec => {
+  const o = document.createElement('option');
+  o.value = dec; o.textContent = `${dec}s`;
+  decSel.appendChild(o);
+});
+const monthSet = [...new Set(DATA.map(d => d.monthName))];
+const monthOrder = MONTHS.filter(m => monthSet.includes(m));
+const monSel = document.getElementById('monthFilter');
+monthOrder.forEach(m => {
+  const o = document.createElement('option');
+  o.value = m; o.textContent = m;
+  monSel.appendChild(o);
+});
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────────────────────
+let viewMode = 'grid';
+document.getElementById('btnGrid').addEventListener('click', () => {
+  viewMode = 'grid';
+  document.getElementById('btnGrid').classList.add('active');
+  document.getElementById('btnTable').classList.remove('active');
+  document.getElementById('grid-container').style.display = 'grid';
+  document.getElementById('table-container').style.display = 'none';
+  render();
+});
+document.getElementById('btnTable').addEventListener('click', () => {
+  viewMode = 'table';
+  document.getElementById('btnTable').classList.add('active');
+  document.getElementById('btnGrid').classList.remove('active');
+  document.getElementById('grid-container').style.display = 'none';
+  document.getElementById('table-container').style.display = 'block';
+  render();
+});
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const decade = document.getElementById('decadeFilter').value;
+  const season = document.getElementById('seasonFilter').value;
+  const month = document.getElementById('monthFilter').value;
+  const day = document.getElementById('dayFilter').value;
+
+  return DATA.filter(d => {
+    if (decade && d.decade != decade) return false;
+    if (season && d.season !== season) return false;
+    if (month && d.monthName !== month) return false;
+    if (day && d.dayName !== day) return false;
+    if (q) {
+      const haystack = `${d.str} ${d.hijri} ${d.dayName} ${d.season}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function seasonClass(s) {
+  return 'season-' + s.toLowerCase();
+}
+
+function render() {
+  const filtered = getFiltered();
+  document.getElementById('resultsCount').innerHTML = filtered.length
+    ? `Showing <strong>${filtered.length}</strong> of ${DATA.length} years`
+    : '';
+  document.getElementById('noResults').style.display = filtered.length ? 'none' : 'block';
+
+  if (viewMode === 'grid') {
+    renderGrid(filtered);
+  } else {
+    renderTable(filtered);
+  }
+}
+
+function renderGrid(filtered) {
+  const container = document.getElementById('grid-container');
+  container.innerHTML = '';
+  if (!filtered.length) return;
+
+  // Group: decade → month → entries
+  const decadeMap = new Map();
+  filtered.forEach(d => {
+    if (!decadeMap.has(d.decade)) decadeMap.set(d.decade, new Map());
+    const mMap = decadeMap.get(d.decade);
+    if (!mMap.has(d.monthName)) mMap.set(d.monthName, []);
+    mMap.get(d.monthName).push(d);
+  });
+
+  let cardIdx = 0;
+  decadeMap.forEach((monthMap, decade) => {
+    // ── Decade banner ──
+    const decBanner = document.createElement('div');
+    decBanner.className = 'decade-banner';
+    const endYear = Math.min(decade + 9, 2038);
+    const count = [...monthMap.values()].reduce((a, v) => a + v.length, 0);
+    decBanner.innerHTML = `
+      <div class="decade-banner-title">
+        <span class="decade-label">${decade}s</span>
+        <span class="decade-range">${decade} – ${endYear}</span>
+      </div>
+      <div class="decade-meta">${count} Ramadan${count>1?'s':''}</div>
+    `;
+    container.appendChild(decBanner);
+
+    // ── Month sections inside decade ──
+    const monthSection = document.createElement('div');
+    monthSection.className = 'month-section-wrap';
+    container.appendChild(monthSection);
+
+    monthMap.forEach((entries, monthName) => {
+      // Month header
+      const mh = document.createElement('div');
+      mh.className = 'month-header';
+      mh.innerHTML = `<span class="month-dot"></span>${monthName} <span class="month-count">${entries.length}</span>`;
+      monthSection.appendChild(mh);
+
+      // Cards row
+      const row = document.createElement('div');
+      row.className = 'cards-row';
+      monthSection.appendChild(row);
+
+      entries.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'card' + (d.isToday ? ' today' : '');
+        card.style.animationDelay = (cardIdx * 0.015) + 's';
+        cardIdx++;
+        const parts = d.str.split(' ');
+        card.innerHTML = `
+          <div class="card-year">${d.year}</div>
+          <div class="card-date">${parts[0]} ${parts[1]}</div>
+          <div class="card-day">${d.dayName}</div>
+          <div class="card-hijri">${d.hijri} AH</div>
+          <div class="card-season ${seasonClass(d.season)}">${SEASON_EMOJI[d.season]} ${d.season}</div>
+          ${d.isToday ? '<div class="today-badge">🌙 Today</div>' : ''}
+        `;
+        row.appendChild(card);
+      });
+    });
+  });
+}
+
+function renderTable(filtered) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  filtered.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    if (d.isToday) tr.className = 'today-row';
+    const diffText = d.diff > 0
+      ? `<span style="color:var(--green)">in ${d.diff} days</span>`
+      : d.diff === 0
+      ? `<span style="color:var(--gold)">🌙 Today!</span>`
+      : `<span style="color:var(--text-muted)">${Math.abs(d.diff)} days ago</span>`;
+    tr.innerHTML = `
+      <td style="color:var(--text-muted);font-size:12px">${i+1}</td>
+      <td class="greg">${d.str}</td>
+      <td class="day-td">${d.dayName}</td>
+      <td class="hijri-td">${d.hijri} AH</td>
+      <td class="season-td"><span class="card-season ${seasonClass(d.season)}" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;">${SEASON_EMOJI[d.season]} ${d.season}</span></td>
+      <td style="font-size:13px">${diffText}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── NEAREST INFO ──────────────────────────────────────────────────────────────
+function updateNearest() {
+  const next = DATA.find(d => d.diff > 0);
+  const ni = document.getElementById('nearestInfo');
+  if (next) ni.textContent = `Next Ramadan begins ${next.str} (${next.diff} days away)`;
+}
+updateNearest();
+
+// ── EVENTS ───────────────────────────────────────────────────────────────────
+['searchInput','decadeFilter','seasonFilter','monthFilter','dayFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+  document.getElementById(id).addEventListener('change', render);
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('decadeFilter').value = '';
+  document.getElementById('seasonFilter').value = '';
+  document.getElementById('monthFilter').value = '';
+  document.getElementById('dayFilter').value = '';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
