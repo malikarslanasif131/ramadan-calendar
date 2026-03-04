@@ -25,26 +25,9 @@
 
 ## 📸 Preview
 
-```
-🌙 رمضان المبارك
-Ramadan Calendar — 1357–1460 Hijri · 1938–2038 Gregorian
+![Ramadan Calendar - Main View](demo_pic/Screenshot%202026-03-04%20184224.png)
 
-[ Search... ] [ Decade ▾ ] [ Season ▾ ] [ Month ▾ ] [ Day ▾ ]  ⊞ ☰
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  2020s  ·  2020–2029  ·  10 Ramadans
-  │
-  ├── ● APRIL
-  │    [ 24 April 2020 · Friday · 1441 AH · 🌸 Spring ]
-  │    [ 13 April 2021 · Tuesday · 1442 AH · 🌸 Spring ]
-  │    [  2 April 2022 · Saturday · 1443 AH · 🌸 Spring ]
-  │
-  ├── ● MARCH
-  │    [ 23 March 2023 · Thursday · 1444 AH · 🌸 Spring ]
-  │    [ 11 March 2024 · Monday · 1445 AH · ❄️ Winter  ]
-  │    [  1 March 2025 · Saturday · 1446 AH · ❄️ Winter ]
-  ...
-```
+![Ramadan Calendar - Grouped View](demo_pic/Screenshot%202026-03-04%20184312.png)
 
 ---
 
